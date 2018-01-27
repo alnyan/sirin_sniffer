@@ -53,5 +53,5 @@ Running daemon is also possible by just running "sniffer" executable:
 Possible issues
 ---------------
 
-* "select" command is to be implemented
 * possible memory leaks in stats struct allocation and filename concat operations (will fix)
+
