@@ -44,10 +44,14 @@ Possible commands:
 * reset — resets packets stats
 * --help — prints this message
 
+Running daemon is also possible by just running "sniffer" executable:
+
+```bash
+    $ ./sniffer [iface]
+```
 
 Possible issues
 ---------------
 
 * "select" command is to be implemented
 * possible memory leaks in stats struct allocation and filename concat operations (will fix)
-* no separate executable for starting daemon
