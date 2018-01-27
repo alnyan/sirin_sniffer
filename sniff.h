@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+/* Time to wait for daemon to stop */
+#define SN_STOP_DELAY       350000 /* 350ms. */
 /* Time to wait for daemon to store data */
 #define SN_FLUSH_DELAY      250000 /* 250ms. */
 /* Stat structure array granularity */

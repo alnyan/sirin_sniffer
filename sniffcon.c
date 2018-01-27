@@ -25,6 +25,7 @@
 #define SN_STOP     "stop"
 #define SN_SHOW     "show"
 #define SN_RESET    "reset"
+#define SN_SELECT   "select"
 
 static const char *sn_usage_str =
     "Usage: sniffcon <command/--help> ...\n"
@@ -188,6 +189,21 @@ static int sn_stop(void) {
     kill(pid, SIGTERM);
 
     return EXIT_SUCCESS;
+}
+
+static int sn_select(const char *iface) {
+    printf("Switching to `%s'\n", iface);
+    /* Pretty straightforward: stop current daemon and restart it on a different interface */
+    if (sn_stop() == EXIT_FAILURE) {
+        /* Daemon was not running */
+        fprintf(stderr, "Failed to stop daemon. Was it running?\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Wait for daemon to stop */
+    usleep(SN_STOP_DELAY);
+
+    return sn_start(iface);
 }
 
 static uint32_t sn_iface_packet_count(uint32_t saddr, const char *iface) {
@@ -395,6 +411,16 @@ int main(int argc, char **argv) {
     /* Stops daemon by sending SIGTERM */
     if (!strcmp(SN_STOP, cmd)) {
         return sn_stop();
+    }
+
+    /* Switches to a different interface */
+    if (!strcmp(SN_SELECT, cmd)) {
+        if (argc != 3) {
+            sn_usage(stderr);
+            return EXIT_FAILURE;
+        }
+
+        return sn_select(argv[2]);
     }
 
     /* Resets stats */
