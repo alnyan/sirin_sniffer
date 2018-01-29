@@ -124,6 +124,8 @@ static int sn_stat(const char *iname) {
 
     fclose(f);
 
+    free(filename);
+
     /* Just to make sure */
     assert(stats.size <= stats.cap);
 
@@ -212,7 +214,7 @@ static uint32_t sn_iface_packet_count(uint32_t saddr, const char *iface) {
     struct sn_stat stats;
 
     /* Create filename for log file */
-    char *filename = malloc(strlen(SN_FILENAME_PREFIX) + strlen(iface) + 1); /* TODO: possible leak */
+    char *filename = malloc(strlen(SN_FILENAME_PREFIX) + strlen(iface) + 1);
     strcpy(filename, SN_FILENAME_PREFIX);
     strcat(filename, iface);
 
@@ -225,6 +227,7 @@ static uint32_t sn_iface_packet_count(uint32_t saddr, const char *iface) {
     }
 
     fclose(f);
+    free(filename);
 
     /* Lookup particular address */
     ssize_t idx = sn_stat_lookup_idx(&stats, saddr);

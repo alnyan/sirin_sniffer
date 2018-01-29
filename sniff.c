@@ -25,7 +25,7 @@
 static pcap_t *sn_pcap_handle = NULL;
 
 /* Current stats context and stats file */
-static const char *sn_stats_filename = NULL;
+static char *sn_stats_filename = NULL;
 static struct sn_stat *sn_stats_context = NULL;
 
 /* Updates count (if greater than SN_THRESHOLD, flush is triggered) */
@@ -201,7 +201,6 @@ int sn_sniffer_main(const struct sn_iface *iface) {
 
     /* Create filename for output */
     {
-        /* FIXME: possible leak here */
         char *filename = malloc(strlen(SN_FILENAME_PREFIX) + strlen(iface->name) + 1);
         strcpy(filename, SN_FILENAME_PREFIX);
         strcat(filename, iface->name);
@@ -266,6 +265,10 @@ int sn_sniffer_main(const struct sn_iface *iface) {
     syslog(LOG_INFO, "pcap_loop() returned %d\n", res);
 
     pcap_close(sn_pcap_handle);
+
+    /* Free malloc'd data */
+    free(sn_stats_filename);
+    sn_stat_free(sn_stats_context);
 
     /* Remove pid file */
     remove(SN_PID_FILENAME);

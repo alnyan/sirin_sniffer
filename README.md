@@ -50,8 +50,3 @@ Running daemon is also possible by just running "sniffer" executable:
     $ ./sniffer [iface]
 ```
 
-Possible issues
----------------
-
-* possible memory leaks in stats struct allocation and filename concat operations (will fix)
-
