@@ -7,6 +7,7 @@
 
 #include "sniff.h"
 #include <stdlib.h>
+#include <syslog.h>
 
 void sn_stat_init(struct sn_stat *s, size_t sz) {
     s->size = 0;
@@ -25,9 +26,10 @@ void sn_stat_insert(struct sn_stat *s, uint32_t saddr, uint32_t count) {
     }
 
     /* Find index to insert after */
-    ssize_t idx;
-    for (idx = 0; idx < s->size; ++idx) {
-        if (s->saddrs[idx] > saddr) {
+    ssize_t idx = -1;
+    for (ssize_t i = 0; i < s->size; ++i) {
+        if (s->saddrs[i] > saddr) {
+            idx = i;
             break;
         }
     }
@@ -39,10 +41,15 @@ void sn_stat_insert(struct sn_stat *s, uint32_t saddr, uint32_t count) {
         s->counts = realloc(s->counts, s->cap * sizeof(uint32_t));
     }
 
-    /* Perform insertion */
-    for (size_t i = s->size; i > idx; --i) {
-        s->saddrs[i] = s->saddrs[i - 1];
-        s->counts[i] = s->saddrs[i - 1];
+    /* Append to the end of array */
+    if (idx == -1) {
+        idx = s->size;
+    } else {
+        /* Perform insertion shift */
+        for (size_t i = s->size; i > idx; --i) {
+            s->saddrs[i] = s->saddrs[i - 1];
+            s->counts[i] = s->counts[i - 1];
+        }
     }
 
     s->saddrs[idx] = saddr;
@@ -52,6 +59,10 @@ void sn_stat_insert(struct sn_stat *s, uint32_t saddr, uint32_t count) {
 }
 
 ssize_t sn_stat_lookup_idx(const struct sn_stat *s, uint32_t saddr) {
+    if (!s->size) {
+        return -1;
+    }
+
     ssize_t start, mid, end;
 
     start = 0;
